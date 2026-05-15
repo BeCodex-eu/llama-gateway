@@ -1,0 +1,621 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Llama Gateway — Design System
+   Theme: Industrial Terminal  /  Dark tech aesthetic
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
+
+/* ─── Tokens — Dark (default) ───────────────────────────────────────────── */
+:root {
+  --bg-base:        #080c14;
+  --bg-surface:     #0d1120;
+  --bg-elevated:    #111827;
+  --bg-overlay:     #1a2235;
+  --bg-hover:       #1e2d45;
+
+  --accent:         #00ff9d;
+  --accent-dim:     #00cc7d;
+  --accent-muted:   rgba(0, 255, 157, 0.12);
+  --accent-glow:    rgba(0, 255, 157, 0.25);
+  --accent-2:       #3d7eff;
+  --accent-2-muted: rgba(61, 126, 255, 0.15);
+
+  --text-primary:   #e2e8f6;
+  --text-secondary: #8896b3;
+  --text-muted:     #4a5568;
+  --text-accent:    #00ff9d;
+
+  --border:         rgba(255, 255, 255, 0.06);
+  --border-accent:  rgba(0, 255, 157, 0.3);
+
+  --danger:         #ff4d6a;
+  --warning:        #ffa500;
+  --success:        #00ff9d;
+  --info:           #3d7eff;
+
+  --radius-sm:   4px;
+  --radius:      8px;
+  --radius-lg:   12px;
+  --radius-xl:   20px;
+
+  --font-mono:  'Space Mono', 'Fira Code', monospace;
+  --font-sans:  'DM Sans', system-ui, sans-serif;
+
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.4);
+  --shadow:     0 4px 16px rgba(0,0,0,0.5);
+  --shadow-lg:  0 8px 32px rgba(0,0,0,0.6);
+  --glow-accent: 0 0 20px rgba(0, 255, 157, 0.15);
+}
+
+/* ─── Tokens — Light (Forest Canopy) ────────────────────────────────────── */
+body.light-mode {
+  --bg-base:        #edf7ee;          /* very light green */
+  --bg-surface:     #f4faf4;          /* soft green-white */
+  --bg-elevated:    #e9f3ea;          /* slightly deeper green */
+  --bg-overlay:     #dcecdf;          /* hover / overlay */
+  --bg-hover:       #d5e6d7;          /* active hover */
+
+  --accent:         #1b7a34;          /* dark forest green primary */
+  --accent-dim:     #155e28;          /* darker green for hover */
+  --accent-muted:   rgba(27, 122, 52, 0.09);
+  --accent-glow:    rgba(27, 122, 52, 0.18);
+  --accent-2:       #2d6a4f;          /* teal green secondary */
+  --accent-2-muted: rgba(45, 106, 79, 0.1);
+
+  --text-primary:   #1a2e1f;          /* deep green-dark */
+  --text-secondary: #4a6b52;          /* muted green-gray */
+  --text-muted:     #7d9b84;          /* soft sage */
+  --text-accent:    #1b7a34;
+
+  --border:         rgba(27, 122, 52, 0.12);
+  --border-accent:  rgba(27, 122, 52, 0.28);
+
+  --danger:         #d94052;
+  --warning:        #c4840e;
+  --success:        #1b7a34;
+  --info:           #2d6a4f;
+
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.06);
+  --shadow:     0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg:  0 8px 32px rgba(0,0,0,0.1);
+  --glow-accent: 0 0 16px rgba(27, 122, 52, 0.12);
+}
+
+/* ─── Reset ─────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 15px; scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--bg-overlay); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ─── Typography ─────────────────────────────────────────────────────────── */
+h1, h2, h3, h4 {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+h1 { font-size: 1.8rem; }
+h2 { font-size: 1.4rem; }
+h3 { font-size: 1.1rem; }
+
+code, pre, .mono { font-family: var(--font-mono); }
+
+/* ─── Utility classes ────────────────────────────────────────────────────── */
+.text-accent   { color: var(--accent); }
+.text-muted    { color: var(--text-muted); }
+.text-secondary{ color: var(--text-secondary); }
+.text-danger   { color: var(--danger); }
+.text-warning  { color: var(--warning); }
+.text-info     { color: var(--accent-2); }
+
+.flex          { display: flex; }
+.flex-col      { flex-direction: column; }
+.items-center  { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-1         { gap: 0.25rem; }
+.gap-2         { gap: 0.5rem; }
+.gap-3         { gap: 0.75rem; }
+.gap-4         { gap: 1rem; }
+.gap-6         { gap: 1.5rem; }
+
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-4 { margin-top: 1rem; }
+.mt-6 { margin-top: 1.5rem; }
+
+/* ─── Cards / Surfaces ───────────────────────────────────────────────────── */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+}
+.card-elevated {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+}
+
+/* ─── Buttons ────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-primary {
+  background: var(--accent);
+  color: #080c14;
+  border-color: var(--accent);
+}
+.btn-primary:not(:disabled):hover {
+  background: var(--accent-dim);
+  box-shadow: var(--glow-accent);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: var(--border);
+}
+.btn-ghost:not(:disabled):hover {
+  background: var(--bg-overlay);
+  color: var(--text-primary);
+  border-color: var(--border-accent);
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--danger);
+  border-color: var(--danger);
+}
+.btn-danger:not(:disabled):hover {
+  background: rgba(255, 77, 106, 0.1);
+}
+
+/* ─── Inputs ─────────────────────────────────────────────────────────────── */
+.input {
+  width: 100%;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  padding: 0.55rem 0.9rem;
+  transition: border-color 0.15s;
+  outline: none;
+}
+.input:focus { border-color: var(--accent); }
+.input::placeholder { color: var(--text-muted); }
+
+select.input {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238896b3' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2rem;
+}
+
+/* ─── Badge ──────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  border-radius: 99px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.badge-green  { background: rgba(0,255,157,0.12); color: var(--accent); border: 1px solid rgba(0,255,157,0.25); }
+.badge-blue   { background: rgba(61,126,255,0.12); color: var(--accent-2); border: 1px solid rgba(61,126,255,0.25); }
+.badge-red    { background: rgba(255,77,106,0.12); color: var(--danger); border: 1px solid rgba(255,77,106,0.25); }
+.badge-yellow { background: rgba(255,165,0,0.12); color: var(--warning); border: 1px solid rgba(255,165,0,0.25); }
+.badge-muted  { background: var(--bg-overlay); color: var(--text-muted); border: 1px solid var(--border); }
+
+/* ─── Table ──────────────────────────────────────────────────────────────── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.855rem;
+}
+.data-table th {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.data-table td {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--bg-elevated); }
+.data-table .mono-cell { font-family: var(--font-mono); font-size: 0.78rem; }
+
+/* ─── Pulse / status dot ─────────────────────────────────────────────────── */
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.status-dot.online  { background: var(--accent); box-shadow: 0 0 6px var(--accent); animation: pulse 2s infinite; }
+.status-dot.offline { background: var(--danger); }
+.status-dot.pending { background: var(--warning); }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* ─── Page transitions ───────────────────────────────────────────────────── */
+.page-enter-active,
+.page-leave-active { transition: opacity 0.18s ease, transform 0.18s ease; }
+.page-enter-from   { opacity: 0; transform: translateY(6px); }
+.page-leave-to     { opacity: 0; transform: translateY(-4px); }
+
+/* ─── Loading skeleton ────────────────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-elevated) 25%, var(--bg-overlay) 50%, var(--bg-elevated) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: var(--radius);
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Theme Toggle Switch
+   ═══════════════════════════════════════════════════════════════════════════ */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.4rem 0.65rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: transparent;
+  transition: all 0.2s ease;
+  user-select: none;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  background: var(--bg-overlay);
+  border-color: var(--border-accent);
+}
+.theme-toggle-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.theme-toggle-icon .sun, .theme-toggle-icon .moon {
+  position: absolute;
+  font-size: 14px;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.theme-toggle-icon .sun {
+  opacity: 0;
+  transform: rotate(90deg) scale(0.5);
+}
+.theme-toggle-icon .moon {
+  opacity: 1;
+  transform: rotate(0) scale(1);
+}
+body.light-mode .theme-toggle-icon .sun {
+  opacity: 1;
+  transform: rotate(0) scale(1);
+}
+body.light-mode .theme-toggle-icon .moon {
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.5);
+}
+.theme-toggle-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+body.light-mode .theme-toggle-label {
+  color: var(--text-secondary);
+}
+
+/* ─── Scrollbar dark mode (default) ──────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--bg-overlay); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Light Mode — Global Component Overrides
+   ═══════════════════════════════════════════════════════════════════════════ */
+body.light-mode {
+  background: var(--bg-base);
+  color: var(--text-primary);
+}
+
+/* Input fields light mode */
+body.light-mode .input {
+  background: var(--bg-surface);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+body.light-mode .input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(27,122,52,0.08);
+}
+body.light-mode .input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Select dropdown */
+body.light-mode select.input {
+  background-color: var(--bg-surface) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237d9b84' d='M6 8L1 3h10z'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.75rem center !important;
+}
+
+/* Date inputs */
+body.light-mode .date-input {
+  background: var(--bg-surface);
+  border-color: var(--border);
+  color: var(--text-primary);
+  color-scheme: light;
+}
+
+/* Pricing input */
+body.light-mode .pricing-input {
+  background: var(--bg-surface);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+
+/* Card surfaces */
+body.light-mode .card,
+body.light-mode .card-elevated {
+  background: var(--bg-surface);
+  border-color: var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Stat cards */
+body.light-mode .stat-card {
+  background: var(--bg-surface);
+  border-color: var(--border);
+  box-shadow: var(--shadow-sm);
+}
+body.light-mode .stat-card--accent {
+  background: linear-gradient(135deg, var(--bg-surface) 60%, rgba(27,122,52,0.04));
+  border-color: var(--border-accent);
+}
+
+/* Table hover rows */
+body.light-mode .data-table tr:hover td {
+  background: var(--bg-hover);
+}
+
+/* Data table borders */
+body.light-mode .data-table th,
+body.light-mode .data-table td {
+  border-bottom-color: var(--border);
+}
+
+/* Toggle accent color */
+body.light-mode .toggle-row input[type='checkbox'],
+body.light-mode .widget-cb {
+  accent-color: var(--accent);
+}
+
+/* Skeleton shimmer light mode */
+body.light-mode .skeleton {
+  background: linear-gradient(90deg, var(--bg-elevated) 25%, var(--bg-overlay) 50%, var(--bg-elevated) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: var(--radius);
+}
+
+/* Detail pre/code blocks */
+body.light-mode .detail-pre {
+  background: var(--bg-elevated);
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+
+/* Scan result items */
+body.light-mode .scan-result-item {
+  background: var(--bg-elevated);
+  border-color: var(--border);
+}
+
+/* Settings hero stat cards */
+body.light-mode .hero-stat {
+  border-color: var(--border);
+  background: var(--bg-elevated);
+}
+
+/* Launch message box */
+body.light-mode .launch-message {
+  background: var(--bg-elevated);
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+
+/* Field cards */
+body.light-mode .field-card {
+  background: linear-gradient(180deg, var(--bg-surface), var(--bg-elevated));
+  border-color: var(--border);
+}
+
+/* Raw config dump */
+body.light-mode .settings-dump {
+  background: var(--bg-elevated);
+  border-color: var(--border);
+}
+
+/* Mini stat cards */
+body.light-mode .mini-stat {
+  border-color: var(--border);
+  background: var(--bg-elevated);
+}
+
+/* Route chip */
+body.light-mode .route-chip {
+  background: var(--bg-elevated);
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+
+/* Flag chip */
+body.light-mode .flag-chip {
+  background: rgba(45, 106, 79, 0.08);
+  border-color: rgba(45, 106, 79, 0.2);
+  color: var(--accent-2);
+}
+
+/* Setup wizard */
+body.light-mode .wizard-backdrop {
+  background: var(--bg-base);
+  background-image: radial-gradient(ellipse at 20% 50%, rgba(27,122,52,0.03) 0%, transparent 60%),
+                    radial-gradient(ellipse at 80% 20%, rgba(45,106,79,0.03) 0%, transparent 60%);
+}
+body.light-mode .wizard-card {
+  background: var(--bg-surface);
+  border-color: var(--border);
+  box-shadow: var(--shadow), 0 0 0 1px rgba(27,122,52,0.05);
+}
+body.light-mode .step-counter {
+  background: var(--bg-elevated);
+  border-color: var(--border);
+}
+body.light-mode .model-list-item {
+  border-color: var(--border);
+  background: var(--bg-surface);
+}
+body.light-mode .model-list-item:hover {
+  background: var(--bg-elevated);
+}
+body.light-mode .model-list-item.selected {
+  background: linear-gradient(135deg, rgba(27,122,52,0.06), rgba(45,106,79,0.06));
+  border-color: var(--border-accent);
+}
+body.light-mode .model-check {
+  color: var(--accent);
+}
+body.light-mode .llama-hint {
+  background: var(--bg-elevated);
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+body.light-mode .launch-section {
+  background: var(--bg-elevated);
+  border-color: var(--border);
+}
+body.light-mode .done-detail-item {
+  background: var(--bg-elevated);
+  border-color: var(--border);
+}
+
+/* ─── Smooth theme transitions ─────────────────────────────────────── */
+.theme-transitioning,
+.theme-transitioning * {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.2s ease, box-shadow 0.3s ease !important;
+}
+
+/* ─── ECharts light mode overrides ──────────────────────────────────── */
+body.light-mode .echarts-tooltip {
+  background: var(--bg-surface) !important;
+  border-color: var(--border) !important;
+  box-shadow: var(--shadow) !important;
+}
+
+body.light-mode .echarts-tooltip .el-tooltip__popper {
+  background: var(--bg-surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+  box-shadow: var(--shadow) !important;
+}
+
+body.light-mode .echarts-tooltip .el-tooltip__popper .el-tooltip__popper__arrow::after {
+  border-top-color: var(--bg-surface) !important;
+}
+
+/* ─── ECharts axis/grid lines ───────────────────────────────────────── */
+body.light-mode .ec-line-split-line {
+  stroke: var(--split) !important;
+}
+
+/* ─── Select dropdown light mode ──────────────────────────────────────── */
+body.light-mode select {
+  background-color: var(--bg-surface) !important;
+}
+
+body.light-mode select option {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+/* ─── Date input light mode ───────────────────────────────────────────── */
+body.light-mode input[type="date"],
+body.light-mode input[type="time"],
+body.light-mode input[type="number"],
+body.light-mode input[type="text"] {
+  color-scheme: light;
+}
+
+/* ─── Primary button light mode ───────────────────────────────────────────── */
+body.light-mode .btn-primary {
+  background: var(--accent-muted) !important;
+  color: var(--accent) !important;
+  border-color: var(--accent) !important;
+  box-shadow: none;
+}
+body.light-mode .btn-primary:not(:disabled):hover {
+  background: var(--accent) !important;
+  color: #ffffff !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 2px 10px rgba(27, 122, 52, 0.2);
+}

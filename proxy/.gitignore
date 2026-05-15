@@ -1,0 +1,10 @@
+# Llama Gateway — .gitignore
+node_modules/
+dist/
+data/
+*.db
+*.db-shm
+*.db-wal
+.env
+.env.local
+.DS_Store
