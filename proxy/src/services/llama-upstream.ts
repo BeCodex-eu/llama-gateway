@@ -89,12 +89,20 @@ export function proxyToLlama(request: FastifyRequest, reply: FastifyReply): Prom
 
           const durationMs = Date.now() - startTime;
           const usage = parseStreamingUsage(lastDataLine);
+          // Fallback: extract model from the final SSE chunk if request didn't specify one
+          const finalChunkModel = (() => {
+            try {
+              return JSON.parse(lastDataLine).model;
+            } catch { return undefined; }
+          })();
 
           logRequestAsync({
-            model: requestMeta.model || 'unknown',
+            model: requestMeta.model || finalChunkModel || 'unknown',
             inputTokens: usage.inputTokens,
             outputTokens: usage.outputTokens,
             durationMs,
+            promptProcessingMs: usage.promptProcessingMs,
+            completionMs: usage.completionMs,
             prompt: requestMeta.prompt || '',
             responsePreview: usage.responsePreview,
             endpoint: request.url.split('?')[0],
@@ -122,12 +130,17 @@ export function proxyToLlama(request: FastifyRequest, reply: FastifyReply): Prom
           const durationMs = Date.now() - startTime;
           const responseBody = Buffer.concat(chunks).toString();
           const usage = parseCompletionUsage(responseBody);
+          // Fallback: extract model from response body if request didn't specify one
+          let responseModel: string | undefined;
+          try { responseModel = JSON.parse(responseBody).model; } catch {}
 
           logRequestAsync({
-            model: requestMeta.model || 'unknown',
+            model: requestMeta.model || responseModel || 'unknown',
             inputTokens: usage.inputTokens,
             outputTokens: usage.outputTokens,
             durationMs,
+            promptProcessingMs: usage.promptProcessingMs,
+            completionMs: usage.completionMs,
             prompt: requestMeta.prompt || '',
             responsePreview: usage.responsePreview,
             endpoint: request.url.split('?')[0],

@@ -9,6 +9,8 @@ export interface RequestRecord {
   input_tokens: number;
   output_tokens: number;
   duration_ms: number;
+  prompt_processing_ms: number;
+  completion_ms: number;
   prompt: string;
   response_preview: string;
   endpoint?: string;
@@ -34,13 +36,15 @@ export interface SettingRecord {
 export function insertRequest(record: RequestRecord): void {
   const db = getDb();
   db.prepare(`
-    INSERT INTO requests (model, input_tokens, output_tokens, duration_ms, prompt, response_preview, endpoint, status_code)
-    VALUES (@model, @input_tokens, @output_tokens, @duration_ms, @prompt, @response_preview, @endpoint, @status_code)
+    INSERT INTO requests (model, input_tokens, output_tokens, duration_ms, prompt_processing_ms, completion_ms, prompt, response_preview, endpoint, status_code)
+    VALUES (@model, @input_tokens, @output_tokens, @duration_ms, @prompt_processing_ms, @completion_ms, @prompt, @response_preview, @endpoint, @status_code)
   `).run({
     model: record.model,
     input_tokens: record.input_tokens,
     output_tokens: record.output_tokens,
     duration_ms: record.duration_ms,
+    prompt_processing_ms: record.prompt_processing_ms || 0,
+    completion_ms: record.completion_ms || 0,
     prompt: record.prompt,
     response_preview: record.response_preview,
     endpoint: record.endpoint || '/v1/chat/completions',
@@ -140,34 +144,43 @@ export function getModelUsage(
   days = 30,
   fromDate?: string,
   toDate?: string,
-): Array<{ model: string; requests: number; input_tokens: number; output_tokens: number; avg_duration_ms: number }> {
+): Array<{ model: string; requests: number; input_tokens: number; output_tokens: number; avg_duration_ms: number; avg_pps: number; avg_tps: number; max_pps: number; max_tps: number }> {
   const db = getDb();
-  if (fromDate && toDate) {
-    return db.prepare(`
-      SELECT
-        model,
-        COUNT(*)            AS requests,
-        SUM(input_tokens)   AS input_tokens,
-        SUM(output_tokens)  AS output_tokens,
-        AVG(duration_ms)    AS avg_duration_ms
-      FROM requests
-      WHERE timestamp >= ? AND timestamp <= ?
-      GROUP BY model
-      ORDER BY requests DESC
-    `).all(fromDate, toDate) as Array<{ model: string; requests: number; input_tokens: number; output_tokens: number; avg_duration_ms: number }>;
-  }
-  return db.prepare(`
+  const baseSql = `
     SELECT
       model,
       COUNT(*)            AS requests,
       SUM(input_tokens)   AS input_tokens,
       SUM(output_tokens)  AS output_tokens,
-      AVG(duration_ms)    AS avg_duration_ms
-    FROM requests
+      AVG(duration_ms)    AS avg_duration_ms,
+      AVG(prompt_pps)     AS avg_pps,
+      AVG(completion_tps) AS avg_tps,
+      MAX(prompt_pps)     AS max_pps,
+      MAX(completion_tps) AS max_tps
+    FROM (
+      SELECT
+        model,
+        timestamp,
+        duration_ms,
+        input_tokens,
+        output_tokens,
+        CASE WHEN prompt_processing_ms > 0 THEN CAST(input_tokens AS REAL) * 1000.0 / prompt_processing_ms END AS prompt_pps,
+        CASE WHEN completion_ms > 0 THEN CAST(output_tokens AS REAL) * 1000.0 / completion_ms END AS completion_tps
+      FROM requests
+    ) sub
+  `;
+  if (fromDate && toDate) {
+    return db.prepare(baseSql + `
+      WHERE timestamp >= ? AND timestamp <= ?
+      GROUP BY model
+      ORDER BY requests DESC
+    `).all(fromDate, toDate) as Array<{ model: string; requests: number; input_tokens: number; output_tokens: number; avg_duration_ms: number; avg_pps: number; avg_tps: number; max_pps: number; max_tps: number }>;
+  }
+  return db.prepare(baseSql + `
     WHERE timestamp >= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-' || ? || ' days')
     GROUP BY model
     ORDER BY requests DESC
-  `).all(days) as Array<{ model: string; requests: number; input_tokens: number; output_tokens: number; avg_duration_ms: number }>;
+  `).all(days) as Array<{ model: string; requests: number; input_tokens: number; output_tokens: number; avg_duration_ms: number; avg_pps: number; avg_tps: number; max_pps: number; max_tps: number }>;
 }
 
 export function getOverviewStats(): {

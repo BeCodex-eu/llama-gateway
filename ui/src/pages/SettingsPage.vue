@@ -43,6 +43,14 @@ function hydrateForms() {
     const savedValue = store.settings[field.key] ?? field.defaultValue;
     llamaForm[field.key] = field.input === 'boolean' ? savedValue === 'true' : savedValue;
   }
+
+  // Auto-generate default custom command with {MODEL} placeholder if none set yet
+  if (!llamaForm['llama_custom_launch_command']) {
+    const defaultCmd = 'llama-server -m {MODEL} -c 65536 -ngl -1 -t 8 -ctk q8_0 -ctv q8_0 --chat-template-kwargs \'{"preserve_thinking": true}\' --spec-type draft-mtp --spec-draft-n-max 2 --fit off --no-mmproj-offload';
+    llamaForm['llama_custom_launch_command'] = defaultCmd;
+    // Persist so subsequent loads keep the user's template
+    store.saveSettings({ llama_custom_launch_command: defaultCmd }).catch(() => {});
+  }
 }
 
 function showToast(message: string, type: 'success' | 'error' = 'success') {
@@ -54,7 +62,15 @@ function showToast(message: string, type: 'success' | 'error' = 'success') {
 }
 
 function fieldsForSection(sectionKey: string): LlamaSettingsSchemaField[] {
-  return store.schema?.fields.filter((field) => field.section === sectionKey) ?? [];
+  const mtpEnabled = llamaForm['llama_mtp_enabled'] === true || llamaForm['llama_mtp_enabled'] === 'true';
+  return store.schema?.fields.filter((field) => {
+    if (field.section !== sectionKey) return false;
+    // Hide the custom command field from section rendering — it lives in the hero
+    if (field.key === 'llama_custom_launch_command') return false;
+    // Hide fields that require MTP when MTP is disabled
+    if ((field as any).requiresMtp && !mtpEnabled) return false;
+    return true;
+  }) ?? [];
 }
 
 function readStringField(field: LlamaSettingsSchemaField): string {
@@ -223,7 +239,25 @@ async function runReset() {
           Launch configuration is complete. The current settings are ready to start in a dedicated terminal window.
         </div>
 
-        <div v-if="appStore.launchCommandPreview" class="command-preview mono">
+        <div class="command-editor">
+          <div class="command-editor-header">
+            <label class="command-editor-label" for="custom-launch-command">Launch Command</label>
+            <span class="command-editor-hint">Editable — replaces all individual runtime settings when set.</span>
+          </div>
+          <textarea
+            id="custom-launch-command"
+            class="input textarea-mono command-editor-input"
+            rows="3"
+            :value="llamaForm['llama_custom_launch_command'] ?? ''"
+            placeholder="llama-server -m {MODEL} -c 65536 -ngl -1 ..."
+            @input="llamaForm['llama_custom_launch_command'] = ($event.target as HTMLTextAreaElement).value"
+          ></textarea>
+          <p class="command-editor-usage">
+            Use <code>{MODEL}</code> as a placeholder — it is replaced with the active model path at launch time.
+            Leave blank to fall back to individual runtime settings.
+          </p>
+        </div>
+        <div v-if="!llamaForm['llama_custom_launch_command'] && appStore.launchCommandPreview" class="command-preview mono">
           {{ appStore.launchCommandPreview }}
         </div>
       </div>
@@ -304,7 +338,7 @@ async function runReset() {
           </div>
 
           <template v-if="field.input === 'boolean'">
-            <label class="toggle-row">
+            <label :class="['toggle-row', field.key === 'llama_mtp_enabled' ? 'toggle-row--mtp' : '']">
               <input
                 type="checkbox"
                 :checked="readBooleanField(field)"
@@ -570,6 +604,66 @@ async function runReset() {
   overflow-x: auto;
 }
 
+/* ── Command Editor ─────────────────────────────────────── */
+.command-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.command-editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.command-editor-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.command-editor-hint {
+  font-size: 0.7rem;
+  color: var(--accent-2);
+  opacity: 0.8;
+}
+
+.command-editor-input {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  min-height: 72px;
+  resize: vertical;
+  background: var(--bg-base);
+  border-color: var(--border-accent);
+}
+
+.command-editor-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(61, 126, 255, 0.15);
+}
+
+.command-editor-usage {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.command-editor-usage code {
+  font-family: var(--font-mono);
+  background: rgba(61, 126, 255, 0.1);
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  color: var(--accent-2);
+}
+
 .hero-actions {
   display: flex;
   flex-direction: column;
@@ -683,6 +777,24 @@ async function runReset() {
   accent-color: var(--accent);
 }
 
+.toggle-row--mtp {
+  background: linear-gradient(135deg, rgba(61, 126, 255, 0.08), rgba(0, 255, 157, 0.06));
+  border: 1px solid rgba(61, 126, 255, 0.25);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+}
+
+.toggle-row--mtp input[type='checkbox'] {
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: #3d7eff;
+}
+
+.toggle-row--mtp span {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
 .textarea-mono {
   min-height: 88px;
   resize: vertical;
@@ -771,6 +883,22 @@ body.light-mode .launch-log {
   color: var(--text-secondary);
 }
 
+body.light-mode .command-editor-input {
+  background: var(--bg-elevated);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+
+body.light-mode .command-editor-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(27, 122, 52, 0.15);
+}
+
+body.light-mode .command-editor-usage code {
+  background: rgba(27, 122, 52, 0.08);
+  color: #2d6a4f;
+}
+
 body.light-mode .field-card {
   background: linear-gradient(180deg, var(--bg-surface), var(--bg-elevated));
   border-color: var(--border);
@@ -801,6 +929,15 @@ body.light-mode .hero-pill--ok {
   background: rgba(27,122,52,0.1);
   border-color: rgba(27,122,52,0.3);
   color: #1b7a34;
+}
+
+body.light-mode .toggle-row--mtp {
+  background: linear-gradient(135deg, rgba(45, 106, 79, 0.06), rgba(27, 122, 52, 0.04));
+  border-color: rgba(45, 106, 79, 0.3);
+}
+
+body.light-mode .toggle-row--mtp input[type='checkbox'] {
+  accent-color: #2d6a4f;
 }
 
 body.light-mode .toast-success {

@@ -3,7 +3,7 @@ import os from 'os';
 import path from 'path';
 import { spawn, spawnSync } from 'child_process';
 import { getAllSettings, getDefaultModelPath, getSetting, setSetting } from '../db/queries';
-import { buildLlamaLaunchArgs } from '../lib/llama-settings';
+import { buildLlamaLaunchArgs, DEFAULT_CUSTOM_COMMAND } from '../lib/llama-settings';
 import { getLlamaConnectionConfig } from './runtime-config';
 
 export interface LaunchOverrides {
@@ -46,6 +46,21 @@ export function getLlamaLaunchPlan(overrides: LaunchOverrides = {}): LlamaLaunch
     throw new Error(`Model file not found: ${modelPath}`);
   }
 
+  // Check for custom launch command — if set, use it directly (override all individual settings)
+  const customCmd = (settings.llama_custom_launch_command || '').trim();
+  if (customCmd) {
+    // Replace {MODEL} placeholder with the actual model path
+    let resolvedCmd = customCmd.replace(/{MODEL}/g, modelPath);
+    return {
+      executable,
+      args: parseRawCommand(resolvedCmd).slice(1),
+      command: resolvedCmd,
+      modelPath,
+      host,
+      port,
+    };
+  }
+
   const args = buildLlamaLaunchArgs(settings, ['-m', modelPath, '--host', host, '--port', port]);
   return {
     executable,
@@ -83,11 +98,19 @@ function parseRawCommand(cmd: string): string[] {
   const tokens: string[] = [];
   let current = '';
   let inDouble = false;
+  let inSingle = false;
   for (let i = 0; i < cmd.length; i++) {
     const ch = cmd[i];
-    if (ch === '"') {
+    // Track quote context but skip the quote character itself
+    if (ch === '"' && !inSingle) {
       inDouble = !inDouble;
-    } else if (ch === ' ' && !inDouble) {
+      continue;  // don't include shell double-quote in token
+    }
+    if (ch === "'" && !inDouble) {
+      inSingle = !inSingle;
+      continue;  // don't include shell single-quote in token
+    }
+    if (ch === ' ' && !inDouble && !inSingle) {
       if (current) { tokens.push(current); current = ''; }
     } else {
       current += ch;

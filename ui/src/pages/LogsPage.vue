@@ -106,6 +106,8 @@ function statusClass(code: number): string {
             <th>In</th>
             <th>Out</th>
             <th>Duration</th>
+            <th>PP Speed</th>
+            <th>Gen Speed</th>
             <th>Status</th>
             <th>Prompt</th>
           </tr>
@@ -113,7 +115,7 @@ function statusClass(code: number): string {
         <tbody>
           <template v-if="!analytics.requests.length">
             <tr>
-              <td colspan="7" style="text-align:center;color:var(--text-muted);padding:3rem">
+              <td colspan="9" style="text-align:center;color:var(--text-muted);padding:3rem">
                 No requests logged yet
               </td>
             </tr>
@@ -129,6 +131,8 @@ function statusClass(code: number): string {
                   {{ row.duration_ms >= 1000 ? `${(row.duration_ms/1000).toFixed(1)}s` : `${row.duration_ms}ms` }}
                 </span>
               </td>
+              <td class="mono-cell">{{ row.prompt_processing_ms > 0 ? `${(row.input_tokens * 1000 / row.prompt_processing_ms).toFixed(1)} tok/s` : '—' }}</td>
+              <td class="mono-cell">{{ row.completion_ms > 0 ? `${(row.output_tokens * 1000 / row.completion_ms).toFixed(1)} tok/s` : '—' }}</td>
               <td><span :class="['badge', statusClass(row.status_code)]">{{ row.status_code }}</span></td>
               <td class="prompt-cell">
                 <span class="prompt-preview">{{ row.prompt || '—' }}</span>
@@ -136,7 +140,7 @@ function statusClass(code: number): string {
             </tr>
             <!-- Expanded detail -->
             <tr v-if="expandedId === row.id" class="expanded-row">
-              <td colspan="7">
+              <td colspan="9">
                 <div class="expanded-detail">
                   <div class="detail-section">
                     <div class="detail-label">Prompt</div>

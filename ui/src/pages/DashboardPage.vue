@@ -79,6 +79,7 @@ const totalOutputCost = computed(() => (analytics.tokensPerDay.reduce((s, d) => 
 // ── Formatters ────────────────────────────────────────────────────────────────
 function fmtNum(n: number) { return n >= 1e6 ? `${(n/1e6).toFixed(1)}M` : n >= 1e3 ? `${(n/1e3).toFixed(1)}K` : String(n); }
 function fmtMs(ms: number) { return ms >= 1000 ? `${(ms/1000).toFixed(1)}s` : `${Math.round(ms)}ms`; }
+function fmtTps(tps: number) { return tps > 0 ? `${tps.toFixed(1)} tok/s` : '—'; }
 function fmtUSD(v: number) { return v === 0 ? '$0.0000' : v < 0.0001 ? `$${v.toFixed(8)}` : `$${v.toFixed(4)}`; }
 
 function isDarkMode(): boolean {
@@ -458,12 +459,12 @@ watch(activePreset, v => { if (v !== null) triggerFetch(); });
       <table class="data-table">
         <thead>
           <tr>
-            <th>Model</th><th>Requests</th><th>Input Tokens</th><th>Output Tokens</th><th>Avg Latency</th><th>Est. Cost</th>
+            <th>Model</th><th>Requests</th><th>Input Tokens</th><th>Output Tokens</th><th>Avg Latency</th><th>Avg PP Speed</th><th>Avg Gen Speed</th><th>Max PP Speed</th><th>Max Gen Speed</th><th>Est. Cost</th>
           </tr>
         </thead>
         <tbody>
           <tr v-if="!analytics.modelUsage.length">
-            <td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem">No data yet</td>
+            <td colspan="10" style="text-align:center;color:var(--text-muted);padding:2rem">No data yet</td>
           </tr>
           <tr v-for="m in analytics.modelUsage" :key="m.model">
             <td><span class="mono-cell">{{ m.model }}</span></td>
@@ -471,6 +472,10 @@ watch(activePreset, v => { if (v !== null) triggerFetch(); });
             <td>{{ fmtNum(m.input_tokens) }}</td>
             <td>{{ fmtNum(m.output_tokens) }}</td>
             <td>{{ fmtMs(m.avg_duration_ms) }}</td>
+            <td class="mono-cell">{{ fmtTps(m.avg_pps) }}</td>
+            <td class="mono-cell">{{ fmtTps(m.avg_tps) }}</td>
+            <td class="mono-cell">{{ fmtTps(m.max_pps) }}</td>
+            <td class="mono-cell">{{ fmtTps(m.max_tps) }}</td>
             <td class="mono-cell">{{ fmtUSD((m.input_tokens/1e6)*priceIn + (m.output_tokens/1e6)*priceOut) }}</td>
           </tr>
         </tbody>

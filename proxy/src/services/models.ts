@@ -110,7 +110,7 @@ function scanForGguf(dir: string, depth = 0): string[] {
     const entries = fs.readdirSync(dir, { withFileTypes: true });
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name);
-      if (entry.isFile() && entry.name.toLowerCase().endsWith('.gguf')) {
+      if (entry.isFile() && entry.name.toLowerCase().endsWith('.gguf') && !entry.name.toLowerCase().includes('mmproj-')) {
         results.push(fullPath);
       } else if (entry.isDirectory() && !entry.name.startsWith('.')) {
         results.push(...scanForGguf(fullPath, depth + 1));

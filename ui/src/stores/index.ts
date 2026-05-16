@@ -95,14 +95,15 @@ export interface OverviewStats {
   tokens_today: number;
 }
 export interface DailyTokens { date: string; input_tokens: number; output_tokens: number; requests: number; }
-export interface ModelUsage { model: string; requests: number; input_tokens: number; output_tokens: number; avg_duration_ms: number; }
+export interface ModelUsage { model: string; requests: number; input_tokens: number; output_tokens: number; avg_duration_ms: number; avg_pps: number; avg_tps: number; max_pps: number; max_tps: number; }
 export interface LatencyPoint { date: string; avg_latency_ms: number; max_latency_ms: number; }
 export interface HourlyRequests { hour: string; requests: number; }
 export interface StatusStats { date: string; success: number; errors: number; }
 export interface RequestRow {
   id: number; timestamp: string; model: string;
   input_tokens: number; output_tokens: number;
-  duration_ms: number; prompt: string;
+  duration_ms: number; prompt_processing_ms: number; completion_ms: number;
+  prompt: string;
   response_preview: string; status_code: number;
 }
 

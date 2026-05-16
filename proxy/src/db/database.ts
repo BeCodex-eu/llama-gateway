@@ -62,6 +62,10 @@ function runMigrations(db: Database.Database): void {
     );
   `);
 
+  // Add new columns if they don't already exist (idempotent migrations)
+  try { db.exec('ALTER TABLE requests ADD COLUMN prompt_processing_ms INTEGER NOT NULL DEFAULT 0'); } catch {}
+  try { db.exec('ALTER TABLE requests ADD COLUMN completion_ms INTEGER NOT NULL DEFAULT 0'); } catch {}
+
   const insertDefault = db.prepare('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)');
   const insertDefaults = db.transaction((entries: [string, string][]) => {
     for (const [key, value] of entries) {
