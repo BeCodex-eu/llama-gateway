@@ -19,6 +19,26 @@ Llama Gateway combines those concerns into one local stack:
 - a quick-start page for launching llama.cpp without opening the full dashboard
 - SQLite-backed analytics and local configuration storage
 
+## Screenshots
+
+### Quick Start
+A lightweight status view and single-click launcher for `llama-server` — no need to open the full dashboard.
+
+![Quick Start](screenshots/quick-start.png)
+
+### Dashboard — Model Breakdown
+The Dashboard displays real-time analytics: total requests, tokens generated, latency trends, and per-model usage — giving you full visibility into your local LLM workload.
+
+![Dashboard — Model Breakdown](screenshots/simple.png)
+
+### Setup Wizard
+The Setup Wizard guides first-time users through configuration: selecting your model binary, scanning for `.gguf` files, and choosing an active model.
+
+![Setup Wizard](screenshots/setup.png)
+
+### Full Gallery
+Browse all UI screenshots in the [screenshots folder](screenshots/).
+
 ## Highlights
 
 - Transparent streaming proxy for `/v1/*` and native llama.cpp routes
